@@ -1,139 +1,179 @@
-<p align="center">
-  <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
-      <img height="100" alt="Endee" src="docs/assets/logo-dark.svg">
-  </picture>
-</p>
+# 🎬 AI Movie Recommendation System
 
-<p align="center">
-    <b>High-performance open-source vector database for AI search, RAG, semantic search, and hybrid retrieval.</b>
-</p>
+> A containerized, content-based recommendation engine using natural language processing and vector search — powered by **Endee Vector Database**.
 
-<p align="center">
-    <a href="./docs/getting-started.md"><img src="https://img.shields.io/badge/Quick_Start-Local_Setup-success?style=flat-square" alt="Quick Start"></a>
-    <a href="https://docs.endee.io/quick-start"><img src="https://img.shields.io/badge/Docs-Quick_Start-success?style=flat-square" alt="Docs"></a>
-    <a href="https://github.com/endee-io/endee/blob/master/LICENSE"><img src="https://img.shields.io/github/license/endee-io/endee?style=flat-square" alt="License"></a>
-    <a href="https://discord.gg/5HFGqDZQE3"><img src="https://img.shields.io/badge/Discord-Join_Chat-5865F2?logo=discord&style=flat-square" alt="Discord"></a>
-    <a href="https://endee.io/"><img src="https://img.shields.io/badge/Website-Endee-111111?style=flat-square" alt="Website"></a>
-    <!-- <a href="https://endee.io/benchmarks"><img src="https://img.shields.io/badge/Benchmarks-Coming_Soon-1F8B4C?style=flat-square" alt="Benchmarks"></a> -->
-    <!-- <a href="https://endee.io/cloud"><img src="https://img.shields.io/badge/Cloud-Coming_Soon-2496ED?style=flat-square" alt="Cloud"></a> -->
-</p>
+---
 
-<p align="center">
-<strong><a href="./docs/getting-started.md">Quick Start</a> • <a href="#why-endee">Why Endee</a> • <a href="#use-cases">Use Cases</a> • <a href="#features">Features</a> • <a href="#api-and-clients">API and Clients</a> • <a href="#docs-and-links">Docs</a> • <a href="#community-and-contact">Contact</a></strong>
-</p>
+## 📌 Overview
 
-# Endee: Open-Source Vector Database for AI Search
+This project implements a semantic movie recommendation system that understands the *vibe* of what you're looking for — not just exact keywords. Ask for "mind-bending sci-fi" or "emotional love story" and it returns the most semantically similar movies from its database using vector embeddings and cosine similarity search.
 
-**Endee** is a high-performance open-source vector database built for AI search and retrieval workloads. It is designed for teams building **RAG pipelines**, **semantic search**, **hybrid search**, recommendation systems, and filtered vector retrieval APIs that need production-oriented performance and control.
+Built as part of an AI/ML evaluation using the [Endee Vector Database](https://github.com/endee-io/endee).
 
-Endee combines vector search with filtering, sparse retrieval support, backup workflows, and deployment flexibility across local builds and Docker-based environments. The project is implemented in C++ and optimized for modern CPU targets, including AVX2, AVX512, NEON, and SVE2.
+---
 
-If you want the fastest path to evaluate Endee locally, start with the [Getting Started guide](./docs/getting-started.md) or the hosted docs at [docs.endee.io](https://docs.endee.io/quick-start).
+## ✨ Features
 
-## Why Endee
+- 🔍 **Semantic Search** — understands natural language queries, not just keywords
+- 🎯 **Genre Filtering** — combines vector search with hard metadata filters via Endee
+- 🧠 **Embedding-Based Recommendations** — uses `all-MiniLM-L6-v2` (384-dim vectors)
+- 🐳 **Fully Dockerized** — single `docker compose up` starts everything
+- 🌐 **Streamlit UI** — clean, interactive web interface at `localhost:8501`
 
-- Built as a dedicated vector database for AI applications, search systems, and retrieval-heavy workloads.
-- Supports dense vector retrieval plus sparse search capabilities for hybrid search use cases.
-- Includes payload filtering for metadata-aware retrieval and application-specific query logic.
-- Ships with operational features already documented in this repo, including backup flows and runtime observability.
-- Offers flexible deployment paths: local scripts, manual builds, Docker images, and prebuilt registry images.
+---
 
-## Getting Started
+## 🏗️ System Architecture
 
-The full installation, build, Docker, runtime, and authentication instructions are in [docs/getting-started.md](./docs/getting-started.md).
-
-Fastest local path:
-
-```bash
-chmod +x ./install.sh ./run.sh
-./install.sh --release --avx2
-./run.sh
+```
+┌─────────────────────────────────────────────────────┐
+│                    User Browser                     │
+│                  localhost:8501                     │
+└─────────────────────┬───────────────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────────────┐
+│              Streamlit Frontend (app.py)            │
+│  - Accepts natural language query + genre filter    │
+│  - Encodes query using SentenceTransformer          │
+│  - Displays ranked recommendations                  │
+└─────────────────────┬───────────────────────────────┘
+                      │  vector query + filter
+┌─────────────────────▼───────────────────────────────┐
+│           Endee Vector Database (store/search)      │
+│  - Stores 47 movie embeddings (384-dim, cosine)     │
+│  - Performs top-K nearest neighbor search           │
+│  - Supports metadata filtering by genre             │
+│                  localhost:8080                     │
+└─────────────────────────────────────────────────────┘
 ```
 
-The server listens on port `8080`. For detailed setup paths, supported operating systems, CPU optimization flags, Docker usage, and authentication examples, use:
+---
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Quick Start Docs](https://docs.endee.io/quick-start)
+## 🛠️ Tech Stack
 
-## Use Cases
+| Layer | Technology |
+|---|---|
+| Frontend UI | Streamlit |
+| Embedding Model | `sentence-transformers` (`all-MiniLM-L6-v2`) |
+| Vector Database | Endee (Docker) |
+| Language | Python 3.10 |
+| Infrastructure | Docker + Docker Compose |
+| Vector Dimensions | 384 |
+| Distance Metric | Cosine Similarity |
+| Precision | INT8 |
 
-### RAG and AI Retrieval
+---
 
-Use Endee as the retrieval layer for question answering, chat assistants, copilots, and other RAG applications that need fast vector search with metadata-aware filtering.
+## 📁 Project Structure
 
-### Agentic AI and AI Agent Memory
+```
+recommendation-project/
+│
+├── app.py              # Streamlit UI + main entry point
+├── data.py             # Movie dataset (47 movies, 8 genres)
+├── model.py            # SentenceTransformer embedding logic
+├── store.py            # Endee index creation + vector upsert
+├── search.py           # Endee vector search + genre filtering
+├── requirements.txt    # Python dependencies
+├── Dockerfile          # App container definition
+├── docker-compose.yml  # Multi-container orchestration
+└── README.md
+```
 
-Use Endee as the long-term memory and context retrieval layer for AI agents built with frameworks like LangChain, CrewAI, AutoGen, and LlamaIndex. Store and retrieve past observations, tool outputs, conversation history, and domain knowledge mid-execution with low-latency filtered vector search, so your autonomous agents get the right context without stalling their reasoning loop.
+---
 
-### Semantic Search
+## 🚀 Setup & Running
 
-Build semantic search experiences for documents, products, support content, and knowledge bases using vector similarity search instead of exact keyword-only matching.
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your machine
 
-### Hybrid Search
+### 1. Clone the repository
 
-Combine dense retrieval, sparse vectors, and filtering to improve relevance for search workflows where both semantic understanding and term-level precision matter.
+```bash
+git clone https://github.com/YOUR_USERNAME/recommendation-project.git
+cd recommendation-project
+```
 
-### Recommendations and Matching
+### 2. Start everything with one command
 
-Support recommendation, similarity matching, and nearest-neighbor retrieval workflows across text, embeddings, and other high-dimensional representations.
+```bash
+docker compose up --build
+```
 
-## Features
+This will:
+- Pull and start the **Endee vector database** on port `8080`
+- Build and start the **Streamlit app** on port `8501`
+- Automatically load all movie embeddings into Endee on first run
 
-- **Vector search** for AI retrieval and semantic similarity workloads.
-- **Hybrid retrieval support** with sparse vector capabilities documented in [docs/sparse.md](./docs/sparse.md).
-- **Payload filtering** for structured retrieval logic documented in [docs/filter.md](./docs/filter.md).
-- **Backup APIs and flows** documented in [docs/backup-system.md](./docs/backup-system.md).
-- **Operational logging and instrumentation** documented in [docs/logs.md](./docs/logs.md) and [docs/mdbx-instrumentation.md](./docs/mdbx-instrumentation.md).
-- **CPU-targeted builds** for AVX2, AVX512, NEON, and SVE2 deployments.
-- **Docker deployment options** for local and server environments.
+### 3. Open the app
 
-## API and Clients
+Visit **http://localhost:8501** in your browser.
 
-Endee exposes an HTTP API for managing indexes and serving retrieval workloads. The current repo documentation and examples focus on running the server directly and calling its API endpoints.
+### 4. Stop the app
 
-Current developer entry points:
+```bash
+docker compose down
+```
 
-- [Getting Started](./docs/getting-started.md) for local build and run flows
-- [Hosted Docs](https://docs.endee.io/quick-start) for product documentation
-- [Release Notes 1.0.0](https://github.com/endee-io/endee/releases/tag/1.0.0) for recent platform changes
+---
 
-## Docs and Links
+## 💡 How It Works
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Documentation](https://docs.endee.io/quick-start)
-- [Release Notes](https://github.com/endee-io/endee/releases/tag/1.0.0)
-- [Sparse Search](./docs/sparse.md)
-- [Filtering](./docs/filter.md)
-- [Backups](./docs/backup-system.md)
+1. **Data Preparation** — 47 movies across 8 genres, each with a title, genre tag, and descriptive text combining themes and keywords.
 
-## Community and Contact
+2. **Embedding Generation** — On startup, each movie's text is encoded into a 384-dimensional vector using `sentence-transformers/all-MiniLM-L6-v2`.
 
-- Join the community on [Discord](https://discord.gg/5HFGqDZQE3)
-- Visit the website at [endee.io](https://endee.io/)
-- For trademark or branding permissions, contact [enterprise@endee.io](mailto:enterprise@endee.io)
+3. **Vector Storage** — Embeddings are upserted into an Endee index named `movies`, configured with cosine similarity and INT8 precision. Each vector carries metadata (`title`, `genre`, `desc`).
 
-## Contributing
+4. **Query Pipeline** — The user's natural language query is encoded using the same model. The resulting vector is sent to Endee's search API.
 
-We welcome contributions from the community to help make vector search faster and more accessible for everyone.
+5. **Semantic Retrieval** — Endee returns the top-K most similar movies using approximate nearest neighbor (ANN) search with HNSW indexing.
 
-- Submit pull requests for fixes, features, and improvements
-- Report bugs or performance issues through GitHub issues
-- Propose enhancements for search quality, performance, and deployment workflows
+6. **Hybrid Filtering** — If the user selects a genre, a metadata filter (`{"genre": {"$eq": "Action"}}`) is passed alongside the vector query — combining semantic similarity with hard logic filtering.
 
-## License
+---
 
-Endee is open source software licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for full terms.
+## 🎯 Example Queries
 
-## Trademark and Branding
+| Query | Top Result |
+|---|---|
+| `space adventure science` | Interstellar, The Martian, Gravity |
+| `horror supernatural fear` | The Shining, Hereditary, It |
+| `romantic emotional love` | The Notebook, Titanic, La La Land |
+| `crime mafia underworld` | The Godfather, Goodfellas, The Departed |
+| `magic fantasy wizard` | Harry Potter, Doctor Strange, The Hobbit |
 
-“Endee” and the Endee logo are trademarks of Endee Labs.
+---
 
-The Apache License 2.0 does not grant permission to use the Endee name, logos, or branding in a way that suggests endorsement or affiliation.
+## 🧩 Key Design Decisions
 
-If you offer a hosted or managed service based on this software, you must use your own branding and avoid implying it is an official Endee service.
+**Why Endee over a plain Python list?**
+Endee provides persistent storage, HNSW-based ANN search, and metadata filtering — features that don't exist in a naive in-memory list. It also scales to millions of vectors without code changes.
 
-## Third-Party Software
+**Why cosine similarity?**
+Movie descriptions are encoded as normalized sentence embeddings. Cosine similarity measures the angle between vectors (semantic direction) rather than magnitude, making it ideal for text similarity tasks.
 
-This project includes or depends on third-party software components licensed under their respective open-source licenses. Use of those components is governed by their own license terms.
+**Why `all-MiniLM-L6-v2`?**
+It's fast, lightweight (90MB), runs on CPU, and produces high-quality 384-dim embeddings — a good balance for a dockerized demo without GPU requirements.
+
+---
+
+## 🔮 Future Improvements
+
+- [ ] Add LLM-generated explanation for each recommendation ("Why this movie?")
+- [ ] Expand dataset to 500+ movies using a public CSV
+- [ ] Add user rating feedback loop to improve recommendations
+- [ ] Deploy to cloud (Railway / Render / AWS EC2)
+- [ ] Add RAG layer for natural language movie Q&A
+
+---
+
+## 👨‍💻 Author
+
+**CH.Navyesh**  
+Built for AI/ML evaluation — Endee Vector Database Project
+
+---
+
+## 📄 License
+
+MIT License
